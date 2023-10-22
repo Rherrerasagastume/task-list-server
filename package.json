@@ -1,0 +1,14 @@
+{
+  "name": "servertareas",
+  "version": "1.0.0",
+  "description": "tareas en express",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "rh",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
