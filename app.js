@@ -1,13 +1,24 @@
 const express = require("express");
 const app = express();
 const port = 3000;
-const path = require("path");
-app.use("/favicon.ico", express.static(path.join(__dirname, "favicon.ico")));
 
+// Middleware para gestionar métodos HTTP válidos
+app.use((req, res, next) => {
+  if (
+    req.method !== "GET" &&
+    req.method !== "POST" &&
+    req.method !== "PUT" &&
+    req.method !== "DELETE"
+  ) {
+    return res.status(400).json({ message: "Método HTTP no válido" });
+  }
+  next();
+});
 
 app.get("/", (req, res) => {
   res.send("¡Bienvenido a mi aplicación Express!");
 });
+
 // Importa los routers
 const listViewRouter = require("./list-view-router");
 const listEditRouter = require("./list-edit-router");
