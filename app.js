@@ -1,6 +1,13 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 const app = express();
 const port = 3000;
+
+
+app.get("/", (req, res) => {
+  res.send("¡Bienvenido a mi aplicación Express!");
+});
 
 // Middleware para gestionar métodos HTTP válidos
 app.use((req, res, next) => {
@@ -15,8 +22,65 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.send("¡Bienvenido a mi aplicación Express!");
+// Carga las variables de entorno desde el archivo .env
+dotenv.config();
+
+// Usuarios predefinidos (esto puede ser una base de datos en una aplicación real)
+const users = [
+  {
+    id: 1,
+    username: "usuario1",
+    password: "contraseña1",
+  },
+  {
+    id: 2,
+    username: "usuario2",
+    password: "contraseña2",
+  },
+];
+
+// Middleware para verificar el token JWT
+function verifyToken(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(403).json({ error: "Token no proporcionado" });
+  }
+
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: "Token inválido" });
+    }
+
+    // Agrega la información del usuario decodificado al objeto de solicitud
+    req.user = decoded;
+
+    next();
+  });
+}
+
+// Ruta de autenticación (login)
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  // Verifica las credenciales del usuario
+  const user = users.find(
+    (user) => user.username === username && user.password === password
+  );
+
+  if (!user) {
+    return res.status(401).json({ error: "Credenciales inválidas" });
+  }
+
+  // Genera un token JWT con el ID del usuario
+  const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY);
+
+  res.json({ token });
+});
+
+// Ruta protegida
+app.get("/protegido", verifyToken, (req, res) => {
+  res.json({ message: "Ruta protegida" });
 });
 
 // Importa los routers
