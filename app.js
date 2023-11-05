@@ -5,9 +5,12 @@ const app = express();
 const port = 3000;
 
 
+
 app.get("/", (req, res) => {
   res.send("¡Bienvenido a mi aplicación Express!");
 });
+const taskApi = require("./task-api");
+app.use("/api", taskApi); 
 
 // Middleware para gestionar métodos HTTP válidos
 app.use((req, res, next) => {
